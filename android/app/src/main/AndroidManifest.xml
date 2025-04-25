@@ -2,13 +2,10 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
-        android:label="kksr"
+        android:label="KkSR"
         android:name="${applicationName}"
         android:icon="@drawable/app_logo">
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyChBY5MiHuI3D0GrPYyMoamhaJ7Ovm-0wY" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../HomeActivity/HomeScreen.dart';
+import '../../HomeActivity/HomeTab/HomeScreen.dart';
+import '../../HomeActivity/HomeWithBottomMenu.dart';
 import '../../LoginActivity/providers/auth_provider.dart';
 import '../../OtpVerification/OTPVerificationScreen.dart';
 
@@ -154,7 +155,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                           }
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (_) => const HomeScreen()),
+                            MaterialPageRoute(builder: (_) => const HomeWithBottomMenu()),
                           );
 
                           /* // Simulate the login process by calling the login API

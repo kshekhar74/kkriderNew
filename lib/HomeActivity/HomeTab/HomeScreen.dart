@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'Lead/RiderLeadView.dart';
-import 'RiderFod/RiderFod.dart';
-import 'RiderStatus/RiderStatusView.dart';
+import '../../OnlyRND/ProductListScreen.dart';
+import '../LeadsTab/LeadsView.dart';
+import '../rnd/Lead/RiderLeadView.dart';
+import '../rnd/RiderStatus/RiderStatusView.dart';
+
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -27,7 +29,13 @@ class HomeScreen extends StatelessWidget {
       _HomeButton(icon: Icons.no_food, label: 'Rider FOD', onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const RiderFod()),
+          MaterialPageRoute(builder: (_) => const LeadsView()),
+        );
+      }),
+      _HomeButton(icon: Icons.no_food, label: 'RND', onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) =>  ProductListScreen()),
         );
       }),
 

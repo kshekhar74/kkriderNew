@@ -3,7 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:kk_new_project/core/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'HomeActivity/HomeScreen.dart';
+import 'HomeActivity/HomeTab/HomeScreen.dart';
 import 'LoginActivity/views/login_view.dart';
 import 'StartScreen/RiderLeadStartScreen.dart';
 
