@@ -1,83 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
-class FilterBottomSheet extends StatefulWidget {
+
+class MyApp1 extends StatelessWidget {
   @override
-  _FilterBottomSheetState createState() => _FilterBottomSheetState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Carousel Slider Demo',
+      home: CarouselExample(),
+    );
+  }
 }
 
-class _FilterBottomSheetState extends State<FilterBottomSheet> {
-  String selectedOption = 'All Leads';
-
-  final List<String> options = [
-    'All Leads',
-    'Registered',
-    'FOD',
-    '10 orders',
-    '20 orders',
-    '30 orders',
-    '50 orders',
-    'Failed',
+class CarouselExample extends StatelessWidget {
+  final List<String> imageList = [
+    'https://picsum.photos/800/400?img=1',
+    'https://picsum.photos/800/400?img=2',
+    'https://picsum.photos/800/400?img=3',
+    'https://picsum.photos/800/400?img=4',
   ];
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.green.withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            ),
-            child: const Text(
-              'Select your preferred filter',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
+    return Scaffold(
+      appBar: AppBar(title: Text('Carousel Slider Example')),
+      body: Center(
+        child: CarouselSlider(
+          options: CarouselOptions(
+            height: 200.0,
+            autoPlay: true,
+            enlargeCenterPage: true,
+            aspectRatio: 16 / 9,
+            autoPlayCurve: Curves.fastOutSlowIn,
+            enableInfiniteScroll: true,
+            autoPlayAnimationDuration: Duration(seconds: 1),
+            viewportFraction: 0.8,
           ),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: options.length,
-            itemBuilder: (context, index) {
-              return RadioListTile<String>(
-                title: Text(options[index]),
-                value: options[index],
-                groupValue: selectedOption,
-                activeColor: Colors.green,
-                onChanged: (value) {
-                  setState(() {
-                    selectedOption = value!;
-                  });
-                },
-              );
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 14),
-                ),
-                onPressed: () {
-                  Navigator.pop(context, selectedOption);
-                },
-                child: const Text('Done', style: TextStyle(fontSize: 16)),
-              ),
+          items: imageList.map((item) => Container(
+            margin: EdgeInsets.all(5.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Image.network(item, fit: BoxFit.cover, width: 1000),
             ),
-          ),
-        ],
+          )).toList(),
+        ),
       ),
     );
   }

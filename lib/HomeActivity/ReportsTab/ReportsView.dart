@@ -46,12 +46,11 @@ class ReportsView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title:  Text(
           'Reports',
-          style: TextStyle(
+          style: GoogleFonts.figtree(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            fontFamily: 'philosopher',
             color: Colors.white,
           ),
         ),
@@ -118,12 +117,14 @@ class ReportsView extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Row(
-                      children: const [
+                      children:  [
                         Expanded(
                           flex: 3,
                           child: Text(
                             'Source',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: GoogleFonts.figtree(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         Expanded(
