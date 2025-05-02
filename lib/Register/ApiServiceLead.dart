@@ -2,8 +2,7 @@
 // lib/services/api_service.dart
 import 'package:dio/dio.dart';
 
-import '../../OnlyRND/rnd/Lead/VehicleResponse.dart';
-
+import 'VehicleResponse.dart';
 class ApiServiceLead {
   final Dio _dio = Dio();
 

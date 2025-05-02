@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import '../rnd/Lead/ApiServiceLead.dart';
-import '../rnd/Lead/VehicleResponse.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../../OnlyRND/rnd/Lead/ApiServiceLead.dart';
+import '../../OnlyRND/rnd/Lead/VehicleResponse.dart';
+import 'details/RiderDetailsScreen.dart';
 
 final apiServiceProvider = Provider<ApiServiceLead>((ref) => ApiServiceLead());
 
@@ -12,153 +13,187 @@ final vehicleTypeProvider = FutureProvider<VehicleResponse>((ref) async {
 });
 
 class LeadsView extends ConsumerWidget {
-  const LeadsView({super.key});
+  LeadsView({super.key});
+
+  final leads = [
+    {
+      'name': 'Madhu Kaimal',
+      'statusBadge': 'Registered',
+      'statusColor': Colors.orange,
+      'mobile': '+91 98883 78787',
+      'currentStatus': 'Student',
+      'area': 'Nerul, Navi-Mumbai',
+      'position': 'Connectors',
+      'remarks': 'Completed initial training session',
+    },
+    {
+      'name': 'Prathamesh Chavan',
+      'statusBadge': 'FOD',
+      'statusColor': Colors.green,
+      'mobile': '+91 98883 78787',
+      'currentStatus': 'Student',
+      'area': 'Nerul, Navi-Mumbai',
+      'position': 'Rider',
+      'remarks': 'Completed initial training session',
+    },
+    {
+      'name': 'Prathamesh Chavan',
+      'statusBadge': 'Failed',
+      'statusColor': Colors.red,
+      'mobile': '+91 98883 78787',
+      'currentStatus': 'Student',
+      'area': 'Nerul, Navi-Mumbai',
+      'position': 'Rider',
+      'remarks': 'Completed initial training session',
+    },
+    {
+      'name': 'Prathamesh Chavan',
+      'statusBadge': 'FOD',
+      'statusColor': Colors.green,
+      'mobile': '+91 98883 78787',
+      'currentStatus': 'Student',
+      'area': 'Nerul, Navi-Mumbai',
+      'position': 'Rider',
+      'remarks': 'Completed initial training session',
+    },
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vehicleAsync = ref.watch(vehicleTypeProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Leads',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'philosopher',
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.green[800],
+        title:  Text('All Leads', style:  GoogleFonts.figtree(color: Colors.black, fontSize: 16,
+          fontWeight: FontWeight.bold,),),
+        centerTitle: false, // Align title to the left
+        backgroundColor: Colors.white,
+        elevation: 2,
+        automaticallyImplyLeading: false, // Remove default back button if needed
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: vehicleAsync.when(
-          data: (response) => ListView.builder(
-            itemCount: response.vehicleTypes.length,
-            itemBuilder: (context, index) {
-              final vehicle = response.vehicleTypes[index];
+      body: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: leads.length,
+        itemBuilder: (context, index) {
+          final lead = leads[index];
+          final String name = lead['name'] as String;
+          final String badge = lead['statusBadge'] as String;
+          final Color color = lead['statusColor'] as Color;
+          final String mobile = lead['mobile'] as String;
+          final String currentStatus = lead['currentStatus'] as String;
+          final String area = lead['area'] as String;
+          final String position = lead['position'] as String;
+          final String remarks = lead['remarks'] as String;
 
-              // Assuming vehicle model has these fields:
-              // name, mobileNo, area, position, remarks, status
-
-              return Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 1,
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Name + Status
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              "Name\n${vehicle.vehicleType ?? 'N/A'}",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                    /*      Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: _getStatusColor(vehicle.status).withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              vehicle.status ?? "Unknown",
-                              style: TextStyle(
-                                color: _getStatusColor(vehicle.status),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),*/
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      // Details
-                   /*   Row(
-                        children: [
-                          _buildInfoColumn("Mobile No", vehicle.mobileNo ?? 'N/A'),
-                          const SizedBox(width: 32),
-                          _buildInfoColumn("Current Status", vehicle.status ?? 'N/A'),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _buildInfoColumn("Area", vehicle.area ?? 'N/A'),
-                          const SizedBox(width: 32),
-                          _buildInfoColumn("Position", vehicle.position ?? 'N/A'),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      _buildInfoColumn("Remarks", vehicle.remarks ?? 'N/A'),*/
-                    ],
-                  ),
+          return InkWell(
+            onTap: () {
+              // Example action: Navigate to RiderDetailsScreen or show dialog
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => RiderDetailsScreen(leadData: lead),
                 ),
               );
             },
-          ),
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (e, _) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error, color: Colors.red, size: 40),
-                const SizedBox(height: 8),
-                Text('Error: $e', style: const TextStyle(fontSize: 16)),
-              ],
+            borderRadius: BorderRadius.circular(16),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Top Row: Name + Badge
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            style:  GoogleFonts.figtree(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: color.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            badge,
+                            style: GoogleFonts.figtree(
+                              color: color,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    // Mobile & Status
+                    Row(
+                      children: [
+                        Expanded(child: _buildInfoRow('Mobile No', mobile)),
+                        Expanded(child: _buildInfoRow('Current Status', currentStatus)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Area & Position
+                    Row(
+                      children: [
+                        Expanded(child: _buildInfoRow('Area', area)),
+                        Expanded(child: _buildInfoRow('Position', position)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Remarks
+                    _buildInfoRow('Remarks', remarks),
+                  ],
+                ),
+              ),
             ),
-          ),
+          );
+        },
+      ),
+
+    );
+  }
+
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: RichText(
+        text: TextSpan(
+          style:  GoogleFonts.figtree(color: Colors.black87, fontSize: 14),
+          children: [
+            TextSpan(
+              text: '$label\n',
+              style:  GoogleFonts.figtree(
+                fontWeight: FontWeight.w500,
+                color: Colors.black54,
+                fontSize: 13,
+              ),
+            ),
+            TextSpan(
+              text: value,
+              style:  GoogleFonts.figtree(
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  // Widget for displaying Title + Value
-  Widget _buildInfoColumn(String title, String value) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              color: Colors.grey,
-              fontSize: 12,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Method to decide badge color based on status
-  Color _getStatusColor(String? status) {
-    switch (status?.toLowerCase()) {
-      case 'pending':
-        return Colors.orange;
-      case 'failed':
-        return Colors.red;
-      case 'completed':
-      case 'success':
-        return Colors.green;
-      default:
-        return Colors.grey;
-    }
   }
 }

@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:kk_new_project/HomeActivity/rnd/Lead/RiderLeadView.dart';
-import 'package:kk_new_project/HomeActivity/rnd/RiderStatus/RiderStatusView.dart';
-
 import 'HomeTab/HomeScreen.dart';
 import 'LeadsTab/LeadsView.dart';
+import 'ProfileTab/ProfileView.dart';
 import 'ReportsTab/ReportsView.dart';
-
-
 class HomeWithBottomMenu extends StatefulWidget {
   const HomeWithBottomMenu({super.key});
 
@@ -21,7 +16,7 @@ class _HomeScreenState extends State<HomeWithBottomMenu> {
     HomeScreen(),
     LeadsView(),
     ReportsView(),
-    RiderStatusView(),
+    ProfileView(),
   ];
 
   @override

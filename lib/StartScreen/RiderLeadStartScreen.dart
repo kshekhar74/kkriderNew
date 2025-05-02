@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../HomeActivity/rnd/Lead/RiderLeadView.dart';
 import '../LoginActivity/views/login_view.dart';
+import '../Register/RegisterView.dart';
 
 class RiderLeadStartScreen extends StatelessWidget {
   const RiderLeadStartScreen({super.key});
@@ -57,7 +57,7 @@ class RiderLeadStartScreen extends StatelessWidget {
 
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => const RiderLeadView()),
+                      MaterialPageRoute(builder: (_) => const RegisterView()),
                     );
 
                   },

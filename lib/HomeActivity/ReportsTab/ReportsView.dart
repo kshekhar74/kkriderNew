@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../rnd/Lead/ApiServiceLead.dart';
-import '../rnd/Lead/VehicleResponse.dart';
+import '../../OnlyRND/rnd/Lead/ApiServiceLead.dart';
+import '../../OnlyRND/rnd/Lead/VehicleResponse.dart';
+
 
 final apiServiceProvider = Provider<ApiServiceLead>((ref) => ApiServiceLead());
 
@@ -46,15 +47,12 @@ class ReportsView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title:  Text(
-          'Reports',
-          style: GoogleFonts.figtree(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.green[800],
+        title:  Text('Reports', style:  GoogleFonts.figtree(color: Colors.black, fontSize: 16,
+          fontWeight: FontWeight.bold,),),
+        centerTitle: false, // Align title to the left
+        backgroundColor: Colors.white,
+        elevation: 2,
+        automaticallyImplyLeading: false, // Remove default back button if needed
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
