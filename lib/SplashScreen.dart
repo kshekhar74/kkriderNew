@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:kk_new_project/core/constants.dart';
+import 'package:kk_new_project/core/Constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'HomeActivity/HomeTab/HomeScreen.dart';
+import 'HomeActivity/HomeWithBottomMenu.dart';
 import 'LoginActivity/views/login_view.dart';
 import 'StartScreen/RiderLeadStartScreen.dart';
 
@@ -34,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (isLoggedIn) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) =>  HomeScreen()), // Ensure HomeScreen is correctly defined
+        MaterialPageRoute(builder: (_) =>  HomeWithBottomMenu()), // Ensure HomeScreen is correctly defined
       );
     } else {
       Navigator.push(

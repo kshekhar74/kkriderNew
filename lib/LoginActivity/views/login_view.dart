@@ -1,29 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../HomeActivity/HomeTab/HomeScreen.dart';
 import '../../HomeActivity/HomeWithBottomMenu.dart';
-import '../../LoginActivity/providers/auth_provider.dart';
-import '../../OtpVerification/OTPVerificationScreen.dart';
+import '../services/login_controller.dart';
 
-// StateProvider to manage password visibility
+// Password visibility state provider
 final passwordVisibilityProvider = StateProvider<bool>((ref) => false);
 
 class LoginView extends ConsumerStatefulWidget {
   const LoginView({super.key});
 
   @override
-  _LoginViewState createState() => _LoginViewState();
+  ConsumerState<LoginView> createState() => _LoginViewState();
 }
 
 class _LoginViewState extends ConsumerState<LoginView> {
-  final TextEditingController _userIdController = TextEditingController();
-  final TextEditingController _vehicleNoController = TextEditingController();
+  final TextEditingController _mobileController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    // Watch the login loading state from Riverpod
     final isLoading = ref.watch(loginControllerProvider);
     final isVisible = ref.watch(passwordVisibilityProvider);
 
@@ -32,184 +30,163 @@ class _LoginViewState extends ConsumerState<LoginView> {
       appBar: AppBar(
         title: const Text(
           'Login',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'philosopher',
-            color: Colors.white,
-          ),
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'philosopher', color: Colors.white),
         ),
         centerTitle: true,
         backgroundColor: Colors.green[800],
       ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            Center(child: Image.asset('assets/images/app_logo.png', height: 80, fit: BoxFit.contain)),
+            const SizedBox(height: 8),
+            Text('Login to your account', style: GoogleFonts.figtree(fontSize: 16, fontWeight: FontWeight.w600)),
+            Text('Create an account', style: GoogleFonts.figtree(fontSize: 12, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 24),
 
-      body: Column(
-        children: [
-          SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
+            // User ID field
+            _buildMobileNumberField(
+              label: 'Mobile Number*',
+              hint: 'Enter your mobile number',
+              controller: _mobileController,
+            ),
 
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            const SizedBox(height: 16),
 
-                Center(
-                  child: Image.asset(
-                    'assets/images/app_logo.png', // Replace with your asset
-                    height: 80,
-                    fit: BoxFit.contain,
-                  ),
+            // Password field
+            TextField(
+              controller: _passwordController,
+              obscureText: !isVisible,
+              decoration: InputDecoration(
+
+                labelText: 'Password',
+                hintText: 'Enter your password',
+                prefixIcon: const Icon(Icons.lock),
+                suffixIcon: IconButton(
+                  icon: Icon(isVisible ? Icons.visibility : Icons.visibility_off, color: Colors.grey),
+                  onPressed: () {
+                    ref.read(passwordVisibilityProvider.notifier).state = !isVisible;
+                  },
                 ),
-                 Text(
-                  'Login to your account ',
-                  style: GoogleFonts.figtree(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
+                filled: true,
+                fillColor: Colors.white,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
                 ),
-                Text(
-                  'Create an account',
-                  style: GoogleFonts.figtree(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 16),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+            ),
 
-                // 👤 User ID Field
-                TextField(
-                  controller: _userIdController,
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    labelText: 'User ID',
-                    hintText: 'Enter your user ID',
-                    prefixIcon: const Icon(Icons.person),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.green),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: const BorderSide(color: Colors.green),
-                    ),
-                  ),
-                ),
+            const SizedBox(height: 30),
 
-                const SizedBox(height: 16),
+            isLoading
+                ? const CircularProgressIndicator()
+                : SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final userId = _mobileController.text.trim();
+                  final password = _passwordController.text.trim();
+                  if(userId.length !=10){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Mobile number must be 10 digits')),
+                    );
+                    return;
+                  }
 
-                // 🔐 Password Field
-                TextField(
-                  controller: _vehicleNoController,
-                  obscureText: !isVisible,
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
-                    prefixIcon: const Icon(Icons.lock),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        isVisible ? Icons.visibility : Icons.visibility_off,
-                        color: Colors.grey,
-                      ),
-                      onPressed: () {
-                        ref
-                            .read(passwordVisibilityProvider.notifier)
-                            .state = !isVisible;
-                      },
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.green),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Colors.green),
-                    ),
-                  ),
-                ),
+                  if (userId.isEmpty || password.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter both User ID and Password')),
+                    );
+                    return;
+                  }
+                  final userId1 = int.tryParse(_mobileController.text.trim());
 
-                const SizedBox(height: 20),
+                  try {
+                    final result = await ref.read(loginControllerProvider.notifier).login(userId1!, password,"1","1");
+                    if (result.status == '200') {
 
-                // 🔄 Login Button or Loader
-                isLoading
-                    ? const CircularProgressIndicator()
-                    : SizedBox(
-                  width: double.infinity,
-                  child:  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: OutlinedButton(
-
-                        onPressed: () async {
-                          final userId = _userIdController.text.trim();
-                          final password = _vehicleNoController.text.trim();
-
-                          if (userId.isEmpty || password.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please enter both User ID and Password'),
-                              ),
-                            );
-                            return;
-                          }
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (_) => const HomeWithBottomMenu()),
-                          );
-
-                          /* // Simulate the login process by calling the login API
-                      final result = await ref
-                          .read(loginControllerProvider.notifier)
-                          .login(userId, password); // Call your actual API here
-
-                      if (result.status.toLowerCase() == '200') {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setString('userID', userId);
-                        await prefs.setString('driverID', result.truckDetail!.driverID.toString());
-                        await prefs.setString('vehicleID', result.truckDetail!.vehicleID.toString());
-                        await prefs.setString('phoneNumber', result.truckDetail!.phoneNumber);
-                        await prefs.setString('email', result.truckDetail!.email);
-                        await prefs.setString('compWhtsApp', result.truckDetail!.compWhtsApp);
-
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Login successful!'), backgroundColor: Colors.green),
+                      );
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool('isLoggedIn', true);
+                      await prefs.setInt('userId', result.data[0].id);
+                      if (context.mounted) {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (_) => const HomeScreen()),
+                          MaterialPageRoute(builder: (_) => const HomeWithBottomMenu()),
                         );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(result.msg),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }*/
-                        },
-
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green[700],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                        child: const Text(
-                          'Verify & Continue',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
+                      }
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(result.message), backgroundColor: Colors.red),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[700],
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
                 ),
-              ],
+                child: const Text('Verify & Continue', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w800, color: Colors.white)),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+  Widget _buildMobileNumberField({
+    required String label,
+    required String hint,
+    required TextEditingController controller,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: controller,
+        keyboardType: TextInputType.phone,
+        maxLength: 10,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(10),
+        ],
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) {
+            return 'Mobile number is required';
+          } else if (value.trim().length != 10) {
+            return 'Mobile number must be 10 digits';
+          }
+          return null;
+        },
+        style: GoogleFonts.figtree(fontSize: 12),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hint,
+          counterText: '',
+          hintStyle: GoogleFonts.figtree(color: Colors.grey[600]),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 12,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
+          ),
+        ),
+      ),
+    );
+  }
+
 }

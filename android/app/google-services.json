@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "792021655276",
+    "project_id": "kkfr-e131a",
+    "storage_bucket": "kkfr-e131a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:792021655276:android:5430627ce0d943a1f24fc9",
+        "android_client_info": {
+          "package_name": "com.example.kksr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCg4l9GZ8yAbAKbU6hj2JFxeb5T7OEpbHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

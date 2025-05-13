@@ -4,13 +4,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+
+import '../../core/SharedPrefHelper.dart';
+import 'LeadService/LeadController.dart';
+
 final onlineStatusProvider = StateProvider<bool>((ref) => false);
 final riderTypeProvider = StateProvider<String>((ref) => 'Rider');
 final statusProvider = StateProvider<String?>((ref) => null);
 
 class HomeScreen extends ConsumerWidget {
   HomeScreen({super.key});
-
   final _formKey = GlobalKey<FormState>();
 
   final List<String> options = [
@@ -23,255 +26,289 @@ class HomeScreen extends ConsumerWidget {
     '50 orders',
     'Failed',
   ];
-
   final List<String> imageList = [
     'https://images.unsplash.com/photo-1603574670812-d24560880210?auto=format&fit=crop&w=800&q=60',
     'https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=800&q=60',
     'https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=800&q=60',
   ];
-
   String selectedOption = 'All Leads';
+  int riderTypePost =0;
+
+
+// Declare controllers outside build()
+  final nameController = TextEditingController();
+  final mobileController = TextEditingController();
+  final areaController = TextEditingController();
+  final remarkController = TextEditingController();
+
+
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isOnline = ref.watch(onlineStatusProvider);
     final riderType = ref.watch(riderTypeProvider);
     final selectedStatus = ref.watch(statusProvider);
-
-
-    final nameController = TextEditingController();
-    final mobileController = TextEditingController();
-    final areaController = TextEditingController();
-    final remarkController = TextEditingController();
-
-
+    final isLoading = ref.watch(leadControllerProvider);
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        automaticallyImplyLeading: false, // Removes the back arrow
-        toolbarHeight: 0, // Hides the default app bar height
-        elevation: 0, // Optional: remove shadow if not needed
+        automaticallyImplyLeading: false,
+        toolbarHeight: 0,
+        elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(70),
           child: _onlineToggleCard(isOnline, ref),
         ),
       ),
-
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome, Recruiter',
-                      style: GoogleFonts.figtree(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      'Manage your recruitment process',
-                      style: GoogleFonts.figtree(
-                        fontSize: 13,
-                        color: Colors.black54,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    _hiringCard(),
-                    const SizedBox(height: 20),
-                    _performanceSection(context),
-                    const SizedBox(height: 10),
-                    Text('New Rider Lead',
-                        style: GoogleFonts.figtree(fontWeight: FontWeight.bold, fontSize: 14)),
-                    const SizedBox(height: 10),
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Welcome, Recruiter',
+                  style: GoogleFonts.figtree(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  'Manage your recruitment process',
+                  style: GoogleFonts.figtree(
+                    fontSize: 13,
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                _hiringCard(),
+                const SizedBox(height: 20),
+                _performanceSection(context),
+                const SizedBox(height: 10),
+                Text(
+                  'New Rider Lead',
+                  style: GoogleFonts.figtree(
+                      fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                const SizedBox(height: 10),
 
-                    Form(
-                      key: _formKey,
-                      child: Column(
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          labelText: 'Name*',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        validator: (value) =>
+                        value == null || value.isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: mobileController,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 10,
+                        decoration: InputDecoration(
+                          labelText: 'Mobile number*',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          counterText: '',
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                          LengthLimitingTextInputFormatter(10),
+                        ],
+                        validator: (value) =>
+                        value == null || value.isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 10),
+                      DropdownButtonFormField<String>(
+                        decoration: InputDecoration(
+                          labelText: 'Select Current Status*',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        value: selectedStatus,
+                        items: ['Full Time', 'Part Time']
+                            .map((status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(status),
+                        ))
+                            .toList(),
+                        onChanged: (value) {
+                          ref.read(statusProvider.notifier).state = value;
+                        },
+                        validator: (value) =>
+                        value == null ? 'Please select a status' : null,
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: areaController,
+                        decoration: InputDecoration(
+                          labelText: 'Area*',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        validator: (value) =>
+                        value == null || value.isEmpty ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
                         children: [
-                          TextFormField(
-                            controller: nameController,
-                            decoration: InputDecoration(
-                              labelText: 'Name*',
-                              border: OutlineInputBorder(
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade400),
                                 borderRadius: BorderRadius.circular(10),
                               ),
+                              child: RadioListTile<String>(
+                                value: 'Rider',
+                                groupValue: riderType,
+                                contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 8),
+                                title: Text('Rider',
+                                    style: GoogleFonts.figtree(fontSize: 14)),
+                                visualDensity: VisualDensity.compact,
+                                onChanged: (value) {
+                                  ref.read(riderTypeProvider.notifier).state =
+                                  value!;
+                                },
+                              ),
                             ),
-                            validator: (value) =>
-                            value == null || value.isEmpty ? 'Required' : null,
                           ),
-                          const SizedBox(height: 10),
-                          TextFormField(
-                            controller: mobileController,
-                            keyboardType: TextInputType.phone,
-                            maxLength: 10,
-                            decoration: InputDecoration(
-                              labelText: 'Mobile number*',
-                              border: OutlineInputBorder(
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(color: Colors.grey.shade400),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              counterText: '', // Hide character count
-                            ),
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                              LengthLimitingTextInputFormatter(10),
-                            ],
-                            validator: (value) =>
-                            value == null || value.isEmpty ? 'Required' : null,
-                          ),
-                          const SizedBox(height: 10),
-                          DropdownButtonFormField<String>(
-
-                            decoration: InputDecoration(
-                              labelText: 'Select Current Status*',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            value: selectedStatus,
-                            items: ['Available', 'Busy', 'Offline']
-                                .map((status) => DropdownMenuItem(
-                              value: status,
-                              child: Text(status),
-                            ))
-                                .toList(),
-                            onChanged: (value) =>
-                            ref.read(statusProvider.notifier).state = value,
-                            validator: (value) =>
-                            value == null ? 'Please select a status' : null,
-                          ),
-                          const SizedBox(height: 10),
-                          TextFormField(
-                            controller: areaController,
-                            decoration: InputDecoration(
-                              labelText: 'Area*',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            validator: (value) =>
-                            value == null || value.isEmpty ? 'Required' : null,
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey.shade400),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: RadioListTile<String>(
-                                    value: 'Rider',
-                                    groupValue: riderType,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                                    title: Text(
-                                      'Rider',
-                                      style: GoogleFonts.figtree(fontSize: 14),
-                                    ),
-                                    visualDensity: VisualDensity.compact,
-                                    onChanged: (value) =>
-                                    ref.read(riderTypeProvider.notifier).state = value!,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey.shade400),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: RadioListTile<String>(
-                                    value: 'Connector',
-                                    groupValue: riderType,
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                                    title: Text(
-                                      'Connector',
-                                      style: GoogleFonts.figtree(fontSize: 14),
-                                    ),
-                                    visualDensity: VisualDensity.compact,
-                                    onChanged: (value) =>
-                                    ref.read(riderTypeProvider.notifier).state = value!,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          TextFormField(
-                            controller: remarkController,
-                            maxLines: 2,
-                            decoration: InputDecoration(
-                              labelText: 'Add Remark',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-
-                                  final name = nameController.text.trim();
-                                  final mobile = mobileController.text.trim();
-                                  final area = areaController.text.trim();
-                                  final remark = remarkController.text.trim();
-
-                                  print('Name: $name');
-                                  print('Mobile: $mobile');
-                                  print('Status: $selectedStatus');
-                                  print('Area: $area');
-                                  print('Rider Type: $riderType');
-                                  print('Remark: $remark');
-
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Rider added')),
-                                  );
-
-
-                                }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                              child: Text(
-                                'Add Rider',
-                                style: GoogleFonts.figtree(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              child: RadioListTile<String>(
+                                value: 'Connector',
+                                groupValue: riderType,
+                                contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 8),
+                                title: Text('Connector',
+                                    style: GoogleFonts.figtree(fontSize: 14)),
+                                visualDensity: VisualDensity.compact,
+                                onChanged: (value) {
+                                  ref.read(riderTypeProvider.notifier).state =
+                                  value!;
+                                },
                               ),
                             ),
                           ),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: remarkController,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          labelText: 'Add Remark',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              final riderName = nameController.text.trim();
+                              final mobileNo = mobileController.text.trim();
+                              final area = areaController.text.trim();
+                              final remark = remarkController.text.trim();
 
-                  ],
+                              int riderTypePost =
+                              riderType == 'Rider' ? 1 : 2;
+
+                              int? userId =
+                              await SharedPrefHelper.getUserId();
+
+                              try {
+                                final result = await ref
+                                    .read(leadControllerProvider.notifier)
+                                    .leadRegi(
+                                  riderName,
+                                  mobileNo,
+                                  selectedStatus!,
+                                  area,
+                                  riderTypePost,
+                                  remark,
+                                  "Active",
+                                  userId!,
+                                );
+
+                                if (result.status == '200') {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Lead successful!'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(result.msg),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(e.toString()),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                          ),
+                          child: Text(
+                            'Add Rider',
+                            style: GoogleFonts.figtree(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      if (isLoading) const CircularProgressIndicator(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+
+
 
   Widget _hiringCard() {
     return ClipRRect(
@@ -543,6 +580,8 @@ class HomeScreen extends ConsumerWidget {
             value: isOnline,
             onChanged: (value) {
               ref.read(onlineStatusProvider.notifier).state = value;
+
+
             },
             activeColor: Colors.white,
           ),
@@ -550,4 +589,5 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
+
 }
